@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="uz" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07152F" />
+    <meta name="description" content="23-maktab — zamonaviy ta'lim portali" />
+    <title>23-maktab — Zamonaviy ta'lim</title>
+    <!-- Birinchi kirishda tungi rejim; keyin foydalanuvchi tanlovi eslab qolinadi (sahifa yaltirab ketmasligi uchun shu yerda) -->
+    <script>
+      (function () {
+        var t = 'dark';
+        try {
+          var s = localStorage.getItem('school_portal_theme');
+          if (s === 'light' || s === 'dark') t = s;
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.style.colorScheme = t;
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute('content', t === 'dark' ? '#07152F' : '#F7F9FC');
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

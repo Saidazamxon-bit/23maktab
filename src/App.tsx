@@ -6,7 +6,7 @@ import { HomePage } from './pages/Home'
 import { AboutPage } from './pages/About'
 import { TeachersPage } from './pages/Teachers'
 import { SchedulePage } from './pages/Schedule'
-import { EditModeBar } from './admin/EditMode'
+// edit bar removed to disable on-page text editing
 import { AdminShell } from './admin/AdminLayout'
 import { AdminLoginPage } from './admin/pages/LoginPage'
 import { DashboardPage } from './admin/pages/DashboardPage'
@@ -26,7 +26,6 @@ const PublicLayout = ({ children }: { children: ReactNode }) => (
     <Navbar />
     {children}
     <Footer />
-    <EditModeBar />
   </div>
 )
 

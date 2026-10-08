@@ -58,7 +58,7 @@ export function SettingsAdminPage() {
               </Field>
             ))}
           </div>
-          <ImageField label="Bosh sahifa katta rasmi" value={vals.hero_image || ''} onChange={(v) => setVals({ ...vals, hero_image: v })} />
+          {/* Removed large hero image field per request */}
           <div className="a-modal-actions"><button type="submit" className="a-btn" disabled={busy}>Saqlash</button></div>
         </form>
       )}

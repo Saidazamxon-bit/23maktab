@@ -161,20 +161,22 @@ p {
   max-width: 1350px;
   box-sizing: border-box;
   overflow: visible;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(26px) saturate(1.2);
-  -webkit-backdrop-filter: blur(26px) saturate(1.2);
-  box-shadow: 0 18px 48px rgba(17, 26, 92, 0.08);
+  /* Light (day) theme: clearer white and softer blur */
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(18px) saturate(1.05) brightness(1.02);
+  -webkit-backdrop-filter: blur(18px) saturate(1.05) brightness(1.02);
+  box-shadow: 0 12px 30px rgba(17, 26, 92, 0.06);
+  overflow: visible;
 }
 
 :root[data-theme='dark'] .navbar {
-  border-color: rgba(148, 163, 184, 0.16);
-  background: rgba(15, 23, 42, 0.38);
-  backdrop-filter: blur(26px) saturate(1.2);
-  -webkit-backdrop-filter: blur(26px) saturate(1.2);
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.18);
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(8, 12, 20, 0.20);
+  backdrop-filter: blur(80px) saturate(1.25) brightness(0.8);
+  -webkit-backdrop-filter: blur(80px) saturate(1.25) brightness(0.8);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.32);
 }
 
 .nav-inner {
@@ -3260,9 +3262,7 @@ button:hover,
    TUZATISHLAR (production): layout, kontrast, responsive
    ===================================================================== */
 
-/* Navbar: ostidagi matn ko'rinib qolmasin */
-.navbar { background: rgba(255, 255, 255, 0.86); }
-:root[data-theme='dark'] .navbar { background: rgba(8, 18, 42, 0.86); }
+/* Navbar override removed so glass styles apply */
 
 /* Hero sarlavhasi doim to'q rasm ustida — ko'k rang yorqinroq bo'lsin */
 .hero-copy h1 > span:first-child,

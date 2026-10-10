@@ -94,7 +94,7 @@ export function TeachersPage() {
               </label>
             </div>
 
-            <div className="teachers-grid">
+            <div className="teachers-grid teachers-grid-page">
               {filtered.map((teacher) => <TeacherCard teacher={teacher} key={teacher.id} />)}
             </div>
 

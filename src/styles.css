@@ -3321,3 +3321,87 @@ button:hover,
   .about-stats .stat-card strong { white-space: normal; }
   .school-location-map, .school-location-map iframe { min-height: 240px; }
 }
+
+/* ===== O'qituvchi kartochkalari — YAKUNIY (eski barcha qoidalarni bosadi) ===== */
+.teachers-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 20px !important;
+  align-items: start;
+}
+.teachers-grid.teachers-grid-page {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.teachers-grid .teacher-card {
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 22px;
+}
+
+.teachers-grid .teacher-image-wrap {
+  position: relative;
+  width: 100%;
+  height: auto !important;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3F46FF, #111A5C);
+}
+.teachers-grid .teacher-image-wrap img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  object-position: center center;   /* rasm o'rtasi */
+  display: block;
+}
+.teachers-grid .teacher-initials {
+  min-height: 0 !important;
+  font-size: clamp(30px, 6vw, 56px);
+}
+.teachers-grid .teacher-badge {
+  left: 10px; top: 10px;
+  max-width: calc(100% - 20px);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.teachers-grid .teacher-body { padding: 14px 12px 16px !important; text-align: center; }
+.teachers-grid .teacher-header { display: block !important; }
+.teachers-grid .teacher-header h3 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;          /* ism-familiya to'liq chiqadi */
+}
+:root[data-theme='dark'] .teachers-grid .teacher-header h3 { color: #fff; }
+.teachers-grid .teacher-header span {
+  display: block; margin-top: 6px; font-size: 12.5px; line-height: 1.35;
+}
+.teachers-grid .teacher-body p { margin-top: 10px; font-size: 13px; line-height: 1.5; }
+.teachers-grid .teacher-meta { display: flex; justify-content: center; }
+
+/* Planshet va telefon: 2 ta quti */
+@media (max-width: 1100px) {
+  .teachers-grid,
+  .teachers-grid.teachers-grid-page {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+  }
+}
+@media (max-width: 560px) {
+  .teachers-grid,
+  .teachers-grid.teachers-grid-page { gap: 10px !important; }
+  .teachers-grid .teacher-card { border-radius: 16px; }
+  .teachers-grid .teacher-body { padding: 10px 8px 12px !important; }
+  .teachers-grid .teacher-header h3 { font-size: 14px; }
+  .teachers-grid .teacher-header span { font-size: 11px; }
+  .teachers-grid .teacher-body p { display: none; }
+  .teachers-grid .teacher-badge { left: 6px; top: 6px; padding: 3px 7px; font-size: 9px; }
+}

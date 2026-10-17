@@ -41,8 +41,11 @@ export function ScheduleAdminPage() {
   useEffect(() => { void loadLessons(classId) }, [classId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const grid = useMemo(() => {
-    const m = new Map<string, ALesson>()
-    lessons.forEach((l) => m.set(`${l.weekday}-${l.lesson_no}`, l))
+    const m = new Map<string, ALesson[]>()
+    lessons.forEach((l) => {
+      const k = `${l.weekday}-${l.lesson_no}`
+      m.set(k, [...(m.get(k) || []), l])
+    })
     return m
   }, [lessons])
 
@@ -55,7 +58,7 @@ export function ScheduleAdminPage() {
   }, [base.data, lessons])
 
   const open = (weekday: number, lesson_no: number) => {
-    const l = grid.get(`${weekday}-${lesson_no}`) || null
+    const l = (grid.get(`${weekday}-${lesson_no}`) || [])[0] || null
     setCell({ weekday, lesson_no, lesson: l })
     setSubject(l?.subject || '')
     setTeacherId(l?.teacher_id ? String(l.teacher_id) : '')
@@ -76,7 +79,7 @@ export function ScheduleAdminPage() {
     setBusy(true)
     try {
       await adminApi.post('lessons', 'save', {
-        class_id: classId, weekday: cell.weekday, lesson_no: cell.lesson_no,
+        id: cell.lesson?.id, class_id: classId, weekday: cell.weekday, lesson_no: cell.lesson_no,
         subject, teacher_id: teacherId ? Number(teacherId) : null, room, force,
       })
       toast('Saqlandi')
@@ -150,15 +153,20 @@ export function ScheduleAdminPage() {
                       <small>{b.start_time}–{b.end_time}</small>
                     </th>
                     {DAYS.map((_, i) => {
-                      const l = grid.get(`${i + 1}-${b.lesson_no}`)
+                      const ls = grid.get(`${i + 1}-${b.lesson_no}`) || []
+                      const l = ls[0]
                       return (
                         <td key={i}>
                           <button type="button" className={`a-cell ${l ? 'filled' : ''}`} onClick={() => open(i + 1, b.lesson_no)}
                             aria-label={`${DAYS[i]}, ${b.lesson_no}-dars${l ? `: ${l.subject}` : ': bo‘sh'}`}>
                             {l ? (
                               <>
-                                <b>{l.subject}</b>
-                                <small>{[l.teacher_name, l.room && `${l.room}-xona`].filter(Boolean).join(' · ')}</small>
+                                {ls.map((x) => (
+                                  <span key={x.id} style={{ display: 'block' }}>
+                                    <b>{x.subject}</b>
+                                    <small>{[x.teacher_name, x.room && `${x.room}-xona`].filter(Boolean).join(' · ')}</small>
+                                  </span>
+                                ))}
                               </>
                             ) : <span className="a-plus">+</span>}
                           </button>

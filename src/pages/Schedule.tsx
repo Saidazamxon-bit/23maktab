@@ -139,10 +139,10 @@ export function SchedulePage() {
                                 <span>{t.schedulePage.teacher}</span>
                                 <span>{t.schedulePage.room}</span>
                               </div>
-                              {dayLessons.map((l) => (
+                              {dayLessons.map((l, idx) => (
                                 <div
                                   className={`schedule-row ${day === today && l.lesson_no === currentNo ? 'now' : ''} ${day === today && l.lesson_no === nextNo ? 'next' : ''}`}
-                                  key={`${day}-${l.lesson_no}`}
+                                  key={`${day}-${l.lesson_no}-${idx}`}
                                 >
                                   <span>
                                     <b className="lesson-no">{l.lesson_no}</b>

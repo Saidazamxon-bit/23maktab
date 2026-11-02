@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { adminApi } from '../../lib/api'
+import { shiftForTime } from '../../lib/shifts'
 import type { ABell } from '../types'
 import { errMsg, LoadState, PageHead, useLoad, useUi } from '../ui'
 
@@ -30,7 +31,7 @@ export function BellsPage() {
 
   return (
     <>
-      <PageHead title="Qo‘ng‘iroqlar" desc="Dars boshlanish va tugash vaqtlari. Sayt, bot (“Hozir”, “Keyingi”, eslatmalar) shundan foydalanadi.">
+      <PageHead title="Qo‘ng‘iroqlar" desc="13:15 dan boshlangan darslar 2-smena hisoblanadi. Sayt va bot dars vaqtlarini shu jadvaldan oladi.">
         <button type="button" className="a-btn ghost" onClick={add}><Plus size={16} /> Dars qo‘shish</button>
         <button type="button" className="a-btn" onClick={() => void save()} disabled={busy}>Saqlash</button>
       </PageHead>
@@ -38,11 +39,12 @@ export function BellsPage() {
       {data && (
         <div className="a-card">
           <table className="a-table">
-            <thead><tr><th scope="col">Dars №</th><th scope="col">Boshlanishi</th><th scope="col">Tugashi</th><th scope="col"><span className="a-sr">Amal</span></th></tr></thead>
+            <thead><tr><th scope="col">Dars №</th><th scope="col">Smena</th><th scope="col">Boshlanishi</th><th scope="col">Tugashi</th><th scope="col"><span className="a-sr">Amal</span></th></tr></thead>
             <tbody>
               {rows.map((r, i) => (
                 <tr key={i}>
                   <td><input className="a-input" type="number" min={1} max={12} value={r.lesson_no} onChange={(e) => setRow(i, { lesson_no: Number(e.target.value) })} aria-label="Dars raqami" /></td>
+                  <td><span className="a-shift-badge" data-shift={shiftForTime(r.start_time)}>{shiftForTime(r.start_time) === 2 ? '2-smena' : '1-smena'}</span></td>
                   <td><input className="a-input" type="time" value={r.start_time} onChange={(e) => setRow(i, { start_time: e.target.value })} aria-label="Boshlanishi" /></td>
                   <td><input className="a-input" type="time" value={r.end_time} onChange={(e) => setRow(i, { end_time: e.target.value })} aria-label="Tugashi" /></td>
                   <td><button type="button" className="a-icon-btn" onClick={() => remove(i)} aria-label="Qatorni o‘chirish"><Trash2 size={16} /></button></td>

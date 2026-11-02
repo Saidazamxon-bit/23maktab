@@ -5,6 +5,7 @@ import { publicApi } from '../lib/api'
 import { LiveStatus } from '../components/LiveStatus'
 import { toSec, useLiveNow, type ServerClock } from '../lib/liveClock'
 import type { PublicClass, PublicLesson } from '../lib/types'
+import { shiftForTime } from '../lib/shifts'
 
 const CLASS_KEY = 'school_portal_class'
 
@@ -126,6 +127,13 @@ export function SchedulePage() {
                   <div className="schedule-grid">
                     {[1, 2, 3, 4, 5, 6].map((day) => {
                       const dayLessons = byDay.get(day) || []
+                      const shiftGroups = ([
+                        { shift: 1 as const, label: t.schedulePage.firstShift },
+                        { shift: 2 as const, label: t.schedulePage.secondShift },
+                      ]).map((group) => ({
+                        ...group,
+                        lessons: dayLessons.filter((lesson) => shiftForTime(lesson.start) === group.shift),
+                      })).filter((group) => group.lessons.length > 0)
                       return (
                         <div className={`glass-card schedule-card ${day === today ? 'today' : ''}`} key={day}>
                           <h3>{t.schedulePage.days[day - 1]}</h3>
@@ -139,7 +147,10 @@ export function SchedulePage() {
                                 <span>{t.schedulePage.teacher}</span>
                                 <span>{t.schedulePage.room}</span>
                               </div>
-                              {dayLessons.map((l, idx) => (
+                              {shiftGroups.map((group) => (
+                                <div className="schedule-shift-group" key={group.shift}>
+                                  <div className="schedule-shift-label">{group.label}</div>
+                                  <div className="schedule-shift-rows">
                                 <div
                                   className={`schedule-row ${day === today && l.lesson_no === currentNo ? 'now' : ''} ${day === today && l.lesson_no === nextNo ? 'next' : ''}`}
                                   key={`${day}-${l.lesson_no}-${idx}`}
@@ -151,6 +162,8 @@ export function SchedulePage() {
                                   <span>{l.subject}</span>
                                   <span>{l.teacher || '—'}</span>
                                   <span>{l.room || '—'}</span>
+                                </div>
+                                  </div>
                                 </div>
                               ))}
                             </div>

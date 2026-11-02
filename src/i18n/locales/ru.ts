@@ -70,6 +70,8 @@ export const ru: Translations = {
     sampleBadge: 'Пример расписания',
     chooseClassLabel: 'Выберите класс',
     time: 'Время',
+    firstShift: '1-я смена',
+    secondShift: '2-я смена',
     subject: 'Предмет',
     teacher: 'Учитель',
     room: 'Кабинет',

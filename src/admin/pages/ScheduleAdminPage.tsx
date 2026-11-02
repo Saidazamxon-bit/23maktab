@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { Fragment, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Trash2 } from 'lucide-react'
 import { adminApi, ApiError } from '../../lib/api'
+import { shiftForTime } from '../../lib/shifts'
 import { DAYS, type ABell, type AClass, type ALesson, type ATeacher } from '../types'
 import { Empty, errMsg, Field, LoadState, Modal, PageHead, useLoad, useUi } from '../ui'
 
@@ -112,6 +113,10 @@ export function ScheduleAdminPage() {
   }
 
   const bells = base.data?.bells || []
+  const bellGroups = ([1, 2] as const).map((shift) => ({
+    shift,
+    rows: bells.filter((bell) => shiftForTime(bell.start_time) === shift),
+  }))
 
   return (
     <>
@@ -146,7 +151,12 @@ export function ScheduleAdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {bells.map((b) => (
+                {bellGroups.map((group) => group.rows.length > 0 ? (
+                  <Fragment key={group.shift}>
+                    <tr className="a-shift-divider">
+                      <td colSpan={DAYS.length + 1}>{group.shift === 1 ? '1-smena — 13:15 dan oldin' : '2-smena — 13:15 dan boshlab'}</td>
+                    </tr>
+                    {group.rows.map((b) => (
                   <tr key={b.lesson_no}>
                     <th scope="row">
                       <b>{b.lesson_no}</b>
@@ -174,7 +184,9 @@ export function ScheduleAdminPage() {
                       )
                     })}
                   </tr>
-                ))}
+                    ))}
+                  </Fragment>
+                ) : null)}
               </tbody>
             </table>
           </div>

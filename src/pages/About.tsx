@@ -118,10 +118,11 @@ export function AboutPage() {
             </div>
           </div>
         </section>
-        <section id='showcase' className='section gallery-section'>
-          <div className='container'>
-            <div className='section-label'>{t.showcase?.label}</div>
-            <div className='section-heading-row'>
+
+        <section id="showcase" className="section gallery-section">
+          <div className="container">
+            <div className="section-label">{t.showcase?.label}</div>
+            <div className="section-heading-row">
               <h2>
                 {t.showcase?.headingStart} <span>{t.showcase?.headingHighlight}</span>
               </h2>
@@ -130,14 +131,14 @@ export function AboutPage() {
               </p>
             </div>
 
-            <div className='editorial-gallery'>
+            <div className="editorial-gallery">
               {showcaseCardsData.map((item, index) => (
-                <article key={item.number + '-' + index} className={'gallery-item' + (index === 0 ? ' gallery-item-large' : '')}>
-                  <img src={item.image} alt={item.title} loading='lazy' />
+                <article key={`${item.number}-${index}`} className={`gallery-item ${index === 0 ? 'gallery-item-large' : ''}`}>
+                  <img src={item.image} alt={item.title} loading="lazy" />
                 </article>
               ))}
             </div>
-            {!loading && showcaseCardsData.length === 0 && <div className='empty-state glass-panel'>{t.showcase?.empty}</div>}
+            {!loading && showcaseCardsData.length === 0 && <div className="empty-state glass-panel">{t.showcase?.empty}</div>}
           </div>
         </section>
       </main>

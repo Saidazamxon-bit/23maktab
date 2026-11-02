@@ -70,6 +70,8 @@ export const en: Translations = {
     sampleBadge: 'Sample timetable',
     chooseClassLabel: 'Select class',
     time: 'Time',
+    firstShift: 'Shift 1',
+    secondShift: 'Shift 2',
     subject: 'Subject',
     teacher: 'Teacher',
     room: 'Room',

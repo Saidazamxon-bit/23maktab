@@ -124,6 +124,8 @@ export interface Translations {
     sampleBadge: string;
     chooseClassLabel: string;
     time: string;
+    firstShift: string;
+    secondShift: string;
     subject: string;
     teacher: string;
     room: string;

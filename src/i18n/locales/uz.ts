@@ -69,6 +69,8 @@ export const uz: Translations = {
     sampleBadge: 'Namuna jadval',
     chooseClassLabel: 'Sinfni tanlang',
     time: 'Vaqt',
+    firstShift: '1-smena',
+    secondShift: '2-smena',
     subject: 'Fan',
     teacher: 'O‘qituvchi',
     room: 'Xona',

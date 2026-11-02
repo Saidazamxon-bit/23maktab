@@ -8,29 +8,91 @@ import {
   Sparkles,
   Users,
 } from 'lucide-react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import schoolHero from '../image/maktab.jpg'
 import { EditableText } from '../admin/EditableText'
 import { TeacherCard } from '../components/TeacherCard'
 import { useLanguage } from '../i18n'
+import { resolveMediaUrl } from '../lib/api'
 import { formatDate } from '../lib/format'
 import { useSiteData } from '../lib/siteData'
 import { useTeachers } from '../lib/useTeachers'
+
+function getYouTubeEmbedUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url)
+    const host = parsed.hostname.toLowerCase()
+
+    if (host.includes('youtube.com')) {
+      const v = parsed.searchParams.get('v')
+      if (v) return `https://www.youtube.com/embed/${v}`
+
+      const shortsMatch = parsed.pathname.match(/\/shorts\/([\w-]{11})/i)
+      if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}`
+
+      const pathMatch = parsed.pathname.match(/(?:^|\/)([\w-]{11})(?:$|[?&])/)
+      if (pathMatch) return `https://www.youtube.com/embed/${pathMatch[1]}`
+    }
+
+    if (host.includes('youtu.be')) {
+      const path = parsed.pathname.replace('/', '')
+      if (path) return `https://www.youtube.com/embed/${path}`
+    }
+  } catch {
+    // ignore invalid links
+  }
+  return null
+}
+
+function renderGalleryVideo(url: string, title: string) {
+  const normalized = resolveMediaUrl(url)
+  const embedUrl = getYouTubeEmbedUrl(normalized)
+
+  if (embedUrl) {
+    return (
+      <div className="gallery-video-frame">
+        <iframe
+          src={embedUrl}
+          title={title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          loading="lazy"
+        />
+      </div>
+    )
+  }
+
+  return (
+    <video className="gallery-video" src={normalized} controls playsInline preload="metadata" />
+  )
+}
+
+const DEFAULT_SHOWCASE_VIDEO = 'https://www.youtube-nocookie.com/embed/kUwTe1dSxwI?rel=0&modestbranding=1'
 
 export function HomePage() {
   const { t, language } = useLanguage()
   const { settings, news, gallery, loading } = useSiteData()
   const { list: teacherList } = useTeachers()
+  const [showAllGallery, setShowAllGallery] = useState(false)
+  const [featureVideoFailed, setFeatureVideoFailed] = useState(false)
 
   const featureList = t.features || []
   const educationCardsData = t.education?.cards || []
   // Galereya va yangiliklar bazadan; server ishlamasa — zaxira (tarjima fayllaridagi) ma'lumot
   const showcaseCardsData = gallery !== null
-    ? gallery.map((g, i) => ({ number: String(i + 1).padStart(2, '0'), title: g.title, image: g.image }))
-    : (t.showcase?.cards || [])
+    ? gallery.map((g, i) => ({ number: String(i + 1).padStart(2, '0'), title: g.title, image: g.image, video: g.video || g.video_url || '' }))
+    : (t.showcase?.cards || []).map((card) => ({ ...card, video: '' }))
+  const showcaseVideo = showcaseCardsData.find((item) => item.video)
+  const showcaseGridItems = showcaseCardsData.filter((item) => item !== showcaseVideo)
+  const featuredVideo = showcaseVideo
+    ? getYouTubeEmbedUrl(resolveMediaUrl(showcaseVideo.video)) || resolveMediaUrl(showcaseVideo.video)
+    : DEFAULT_SHOWCASE_VIDEO
+  const isFeaturedYoutube = featuredVideo.includes('youtube')
+  const visibleGalleryItems = showAllGallery ? showcaseGridItems : showcaseGridItems.slice(0, 4)
   const newsItemsData = news !== null
-    ? news.slice(0, 5).map((n) => ({ id: String(n.id), category: n.category, title: n.title, date: formatDate(n.date, language), image: n.image }))
-    : (t.news?.list || [])
+    ? news.slice(0, 5).map((n) => ({ id: String(n.id), category: n.category, title: n.title, date: formatDate(n.date, language), image: n.image || '', video: n.video || n.video_url || '' }))
+    : (t.news?.list || []).map((item) => ({ ...item, video: '' }))
 
   const iconsMap: Record<string, React.ReactNode> = {
     schedule: <CalendarDays size={18} />,
@@ -94,6 +156,57 @@ export function HomePage() {
               <p>{item.description}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section id="showcase" className="section gallery-section">
+        <div className="container">
+          <div className="section-label">{t.showcase?.label}</div>
+          <div className="section-heading-row">
+            <h2>
+              {t.showcase?.headingStart} <span>{t.showcase?.headingHighlight}</span>
+            </h2>
+            <p>
+              {t.showcase?.description}
+            </p>
+          </div>
+
+          <div className="gallery-feature-video">
+            <div className="gallery-video-frame">
+              {featureVideoFailed ? (
+                <img src={schoolHero} alt={showcaseVideo?.title || 'Maktabimiz hayoti'} loading="lazy" />
+              ) : isFeaturedYoutube ? (
+                <iframe
+                  src={featuredVideo}
+                  title={showcaseVideo?.title || 'Maktabimiz hayoti'}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  onError={() => setFeatureVideoFailed(true)}
+                />
+              ) : (
+                <video src={featuredVideo} controls playsInline preload="metadata" onError={() => setFeatureVideoFailed(true)} />
+              )}
+            </div>
+          </div>
+
+          <div className="editorial-gallery">
+            {visibleGalleryItems.map((item, index) => (
+              <article key={`${item.number}-${index}`} className={`gallery-item ${index === 0 ? 'gallery-item-large' : ''}`}>
+                <img src={item.image} alt={item.title} loading="lazy" />
+              </article>
+            ))}
+          </div>
+
+          {showcaseGridItems.length > 4 && (
+            <div className="gallery-show-more-wrap">
+              <button type="button" className="ghost-btn gallery-show-more" onClick={() => setShowAllGallery((value) => !value)}>
+                {showAllGallery ? 'Kamroq ko‘rsatish' : 'Yana ko‘rsatish'}
+              </button>
+            </div>
+          )}
+          {!loading && showcaseCardsData.length === 0 && <div className="empty-state glass-panel">{t.showcase?.empty}</div>}
         </div>
       </section>
 
@@ -163,7 +276,6 @@ export function HomePage() {
           </div>
         </div>
       </section>
-
       <section id="education" className="section education-section">
         <div className="container">
           <div className="section-label light">{t.education.label}</div>
@@ -189,28 +301,6 @@ export function HomePage() {
         </div>
       </section>
 
-      <section id="showcase" className="section gallery-section">
-        <div className="container">
-          <div className="section-label">{t.showcase?.label}</div>
-          <div className="section-heading-row">
-            <h2>
-              {t.showcase?.headingStart} <span>{t.showcase?.headingHighlight}</span>
-            </h2>
-            <p>
-              {t.showcase?.description}
-            </p>
-          </div>
-
-          <div className="editorial-gallery">
-            {showcaseCardsData.map((item, index) => (
-              <article key={`${item.number}-${index}`} className={`gallery-item ${index === 0 ? 'gallery-item-large' : ''}`}>
-                <img src={item.image} alt={item.title} loading="lazy" />
-              </article>
-            ))}
-          </div>
-          {!loading && showcaseCardsData.length === 0 && <div className="empty-state glass-panel">{t.showcase?.empty}</div>}
-        </div>
-      </section>
       <section id="teachers" className="section teachers-section">
         <div className="container">
           <div className="section-label">{t.teachers.label}</div>
@@ -245,7 +335,11 @@ export function HomePage() {
           <div className="news-layout">
             {newsItemsData.map((item, index) => (
               <article key={item.id} className={`news-article ${index === 0 ? 'featured' : 'compact'}`}>
-                {item.image && <img src={item.image} alt={item.title} loading="lazy" />}
+                {item.video ? (
+                  <div className="news-media">{renderGalleryVideo(item.video, item.title)}</div>
+                ) : item.image ? (
+                  <img src={item.image} alt={item.title} loading="lazy" />
+                ) : null}
                 <div className="news-body">
                   <span className="news-category">{item.category}</span>
                   <small>{item.date}</small>

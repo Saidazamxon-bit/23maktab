@@ -7,7 +7,12 @@ export function TeacherCard({ teacher }: { teacher: PublicTeacher }) {
     <article className="teacher-card glass-card">
       <div className="teacher-image-wrap">
         {teacher.photo ? (
-          <img src={teacher.photo} alt={teacher.name} loading="lazy" />
+          <img
+            src={teacher.photo}
+            alt={teacher.name}
+            loading="lazy"
+            style={{ objectFit: 'cover', objectPosition: 'center top' }}
+          />
         ) : (
           <div className="teacher-initials" aria-hidden="true">{initials(teacher.name)}</div>
         )}

@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { Eye, EyeOff, Pencil, Plus, Trash2 } from 'lucide-react'
-import { adminApi } from '../../lib/api'
+import { adminApi, resolveMediaUrl } from '../../lib/api'
 import type { ANews } from '../types'
-import { Empty, errMsg, Field, ImageField, LoadState, Modal, PageHead, useLoad, useUi } from '../ui'
+import { Empty, errMsg, Field, ImageField, LoadState, Modal, PageHead, useLoad, useUi, VideoField } from '../ui'
 
-interface Form { id: number; title: string; category: string; content: string; image: string; published_at: string; is_published: boolean }
+interface Form { id: number; title: string; category: string; content: string; image: string; video: string; published_at: string; is_published: boolean }
 const today = () => new Date().toISOString().slice(0, 10)
-const blank = (): Form => ({ id: 0, title: '', category: '', content: '', image: '', published_at: today(), is_published: true })
+const blank = (): Form => ({ id: 0, title: '', category: '', content: '', image: '', video: '', published_at: today(), is_published: true })
 
 export function NewsAdminPage() {
   const { toast, confirm } = useUi()
@@ -46,7 +46,15 @@ export function NewsAdminPage() {
       <div className="a-media-list">
         {(data || []).map((n) => (
           <article className="a-card a-media-card" key={n.id}>
-            <div className="a-media-thumb">{n.image_url ? <img src={n.image_url} alt="" loading="lazy" /> : <span>Rasm yo‘q</span>}</div>
+            <div className="a-media-thumb">
+              {n.video_url || n.video ? (
+                <video src={resolveMediaUrl(n.video_url || n.video)} controls muted playsInline preload="metadata" />
+              ) : n.image_url ? (
+                <img src={n.image_url} alt="" loading="lazy" />
+              ) : (
+                <span>Media yo‘q</span>
+              )}
+            </div>
             <div className="a-media-body">
               <div className="a-badges">
                 {n.category && <span className="a-badge">{n.category}</span>}
@@ -55,7 +63,7 @@ export function NewsAdminPage() {
               </div>
               <h3>{n.title}</h3>
               <div className="a-actions">
-                <button type="button" className="a-btn ghost sm" onClick={() => setForm({ ...n })}><Pencil size={14} /> Tahrirlash</button>
+                <button type="button" className="a-btn ghost sm" onClick={() => setForm({ id: n.id, title: n.title, category: n.category, content: n.content, image: n.image || '', video: n.video || '', published_at: n.published_at, is_published: n.is_published })}><Pencil size={14} /> Tahrirlash</button>
                 <button type="button" className="a-btn ghost sm" onClick={() => void toggle(n)}>
                   {n.is_published ? <><EyeOff size={14} /> Yashirish</> : <><Eye size={14} /> E’lon qilish</>}
                 </button>
@@ -76,13 +84,14 @@ export function NewsAdminPage() {
             </div>
             <Field label="Matn"><textarea className="a-input" rows={6} value={form.content} onChange={(e) => set('content', e.target.value)} /></Field>
             <ImageField label="Rasm" value={form.image} onChange={(v) => set('image', v)} />
+            <VideoField label="Video" value={form.video} onChange={(v) => set('video', v)} />
             <label className="a-check-row">
               <input type="checkbox" checked={form.is_published} onChange={(e) => set('is_published', e.target.checked)} />
               <span>Saytda ko‘rsatish</span>
             </label>
             <div className="a-modal-actions">
               <button type="button" className="a-btn ghost" onClick={() => setForm(null)}>Bekor qilish</button>
-              <button type="submit" className="a-btn" disabled={busy}>Saqlash</button>
+              <button type="submit" className="a-btn" disabled={busy || (!form.image && !form.video)}>Saqlash</button>
             </div>
           </form>
         </Modal>

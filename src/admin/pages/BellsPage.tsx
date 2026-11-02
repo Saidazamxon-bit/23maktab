@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { adminApi } from '../../lib/api'
+import { getShiftLabelFromTime } from '../../lib/schedule'
 import type { ABell } from '../types'
 import { errMsg, LoadState, PageHead, useLoad, useUi } from '../ui'
 
@@ -42,7 +43,12 @@ export function BellsPage() {
             <tbody>
               {rows.map((r, i) => (
                 <tr key={i}>
-                  <td><input className="a-input" type="number" min={1} max={12} value={r.lesson_no} onChange={(e) => setRow(i, { lesson_no: Number(e.target.value) })} aria-label="Dars raqami" /></td>
+                  <td>
+                    <div className="a-bell-cell">
+                      <input className="a-input" type="number" min={1} max={12} value={r.lesson_no} onChange={(e) => setRow(i, { lesson_no: Number(e.target.value) })} aria-label="Dars raqami" />
+                      <small>{getShiftLabelFromTime(r.start_time)}</small>
+                    </div>
+                  </td>
                   <td><input className="a-input" type="time" value={r.start_time} onChange={(e) => setRow(i, { start_time: e.target.value })} aria-label="Boshlanishi" /></td>
                   <td><input className="a-input" type="time" value={r.end_time} onChange={(e) => setRow(i, { end_time: e.target.value })} aria-label="Tugashi" /></td>
                   <td><button type="button" className="a-icon-btn" onClick={() => remove(i)} aria-label="Qatorni o‘chirish"><Trash2 size={16} /></button></td>

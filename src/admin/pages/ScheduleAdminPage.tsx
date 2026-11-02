@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Trash2 } from 'lucide-react'
 import { adminApi, ApiError } from '../../lib/api'
+import { getShiftLabelFromTime } from '../../lib/schedule'
 import { DAYS, type ABell, type AClass, type ALesson, type ATeacher } from '../types'
 import { Empty, errMsg, Field, LoadState, Modal, PageHead, useLoad, useUi } from '../ui'
 
@@ -25,11 +26,24 @@ export function ScheduleAdminPage() {
   const [room, setRoom] = useState('')
   const [busy, setBusy] = useState(false)
   const [conflict, setConflict] = useState('')
+  const [bellRows, setBellRows] = useState<ABell[]>([])
 
   const classes = base.data?.classes || []
   useEffect(() => {
     if (!classId && classes.length) setClassId(classes[0].id)
   }, [classes, classId])
+
+  useEffect(() => { if (base.data?.bells) setBellRows(base.data.bells) }, [base.data])
+
+  const moveBellRow = (index: number, direction: -1 | 1) => {
+    setBellRows((rows) => {
+      const next = [...rows]
+      const target = index + direction
+      if (target < 0 || target >= next.length) return rows
+      ;[next[index], next[target]] = [next[target], next[index]]
+      return next.map((row, i) => ({ ...row, lesson_no: i + 1 }))
+    })
+  }
 
   const loadLessons = async (id: number) => {
     if (!id) return
@@ -111,7 +125,7 @@ export function ScheduleAdminPage() {
     } catch (err) { toast(errMsg(err), 'err') }
   }
 
-  const bells = base.data?.bells || []
+  const bells = bellRows.length ? bellRows : base.data?.bells || []
 
   return (
     <>
@@ -149,8 +163,15 @@ export function ScheduleAdminPage() {
                 {bells.map((b) => (
                   <tr key={b.lesson_no}>
                     <th scope="row">
-                      <b>{b.lesson_no}</b>
-                      <small>{b.start_time}–{b.end_time}</small>
+                      <div className="a-row-head">
+                        <div className="a-row-meta">
+                          <div className="a-lesson-no-wrap">
+                            <b>{b.lesson_no}</b>
+                            <small>{getShiftLabelFromTime(b.start_time)}</small>
+                          </div>
+                          <small>{b.start_time}–{b.end_time}</small>
+                        </div>
+                      </div>
                     </th>
                     {DAYS.map((_, i) => {
                       const ls = grid.get(`${i + 1}-${b.lesson_no}`) || []
@@ -160,14 +181,14 @@ export function ScheduleAdminPage() {
                           <button type="button" className={`a-cell ${l ? 'filled' : ''}`} onClick={() => open(i + 1, b.lesson_no)}
                             aria-label={`${DAYS[i]}, ${b.lesson_no}-dars${l ? `: ${l.subject}` : ': bo‘sh'}`}>
                             {l ? (
-                              <>
+                              <div className="a-cell-stack">
                                 {ls.map((x) => (
-                                  <span key={x.id} style={{ display: 'block' }}>
+                                  <div key={x.id} className="a-cell-item">
                                     <b>{x.subject}</b>
                                     <small>{[x.teacher_name, x.room && `${x.room}-xona`].filter(Boolean).join(' · ')}</small>
-                                  </span>
+                                  </div>
                                 ))}
-                              </>
+                              </div>
                             ) : <span className="a-plus">+</span>}
                           </button>
                         </td>
@@ -182,7 +203,7 @@ export function ScheduleAdminPage() {
       )}
 
       {cell && (
-        <Modal title={`${DAYS[cell.weekday - 1]}, ${cell.lesson_no}-dars`} onClose={() => setCell(null)} small>
+        <Modal title={`${DAYS[cell.weekday - 1]}, ${cell.lesson_no}-dars (${getShiftLabelFromTime(bells.find((b) => b.lesson_no === cell.lesson_no)?.start_time)})`} onClose={() => setCell(null)} small>
           <form onSubmit={(e) => void save(e)} className="a-form">
             <Field label="Fan *">
               <input className="a-input" list="subject-list" value={subject} onChange={(e) => setSubject(e.target.value)} required maxLength={80} autoFocus />

@@ -2,6 +2,13 @@
 // Productionda so'rovlar Vercel orqali `/backend/...` ga yuboriladi (vercel.json), lokal ishlaganda vite proxy ishlatadi.
 export const API_BASE: string = ((import.meta.env.VITE_API_URL as string | undefined) || '/backend').replace(/\/$/, '')
 
+export function resolveMediaUrl(value: string): string {
+  if (!value) return ''
+  if (/^https?:\/\//i.test(value) || /^data:|^blob:/i.test(value)) return value
+  if (value.startsWith('//')) return `https:${value}`
+  return `${API_BASE}/${value.replace(/^\/+/, '')}`
+}
+
 const TOKEN_KEY = 'admin_token'
 const USER_KEY = 'admin_username'
 

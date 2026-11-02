@@ -37,11 +37,21 @@ export interface ANews {
   content: string
   image: string
   image_url: string
+  video: string
+  video_url: string
   published_at: string
   is_published: boolean
 }
 
-export interface AGallery { id: number; title: string; image: string; image_url: string; sort_order: number }
+export interface AGallery {
+  id: number
+  title: string
+  image: string
+  image_url: string
+  video: string
+  video_url: string
+  sort_order: number
+}
 
 export interface AStats {
   classes: number; teachers: number; bound_teachers: number; lessons: number; bells: number

@@ -102,7 +102,7 @@ export const uz: Translations = {
     description: 'Maktab — bu faqat dars va baholardan iborat emas. Bu yangi narsalarni sinab ko‘rish, tajriba orttirish va o‘z yo‘lingni topish boshlanadigan maskan.',
     btnAbout: 'Maktab haqida',
     btnNews: 'Yangiliklarni ko‘rish',
-    studentsCount: '1 200+',
+    studentsCount: '2 100+',
     studentsLabel: 'faol o‘quvchilar',
     badgeExpYears: '25+',
     badgeExpLabel: 'yillik tajriba',
@@ -111,7 +111,7 @@ export const uz: Translations = {
     imageAlt: 'Maktab o‘quvchilari',
   },
   stats: {
-    studentsValue: '1 200+',
+    studentsValue: '2 100+',
     studentsLabel: 'O‘quvchilar',
     teachersValue: '80+',
     teachersLabel: 'O‘qituvchilar',

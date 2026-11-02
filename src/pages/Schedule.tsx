@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Send } from 'lucide-react'
 import { PageHero } from '../components/PageHero'
 import { useLanguage } from '../i18n'
 import { publicApi } from '../lib/api'
 import { LiveStatus } from '../components/LiveStatus'
 import { toSec, useLiveNow, type ServerClock } from '../lib/liveClock'
+import { getShiftLabelFromLesson, getShiftNumberFromLesson } from '../lib/schedule'
+import { useSiteData } from '../lib/siteData'
 import type { PublicClass, PublicLesson } from '../lib/types'
 
 const CLASS_KEY = 'school_portal_class'
 
 export function SchedulePage() {
   const { t } = useLanguage()
+  const { settings } = useSiteData()
   const [classes, setClasses] = useState<PublicClass[] | null>(null)
   const [selectedId, setSelectedId] = useState<number>(0)
   const [lessons, setLessons] = useState<PublicLesson[] | null>(null)
@@ -79,6 +83,9 @@ export function SchedulePage() {
   const nextNo = (lessons || []).filter((l) => l.weekday === now.weekday && l.start && toSec(l.start) > now.seconds).sort((a, b) => a.lesson_no - b.lesson_no)[0]?.lesson_no
   const hasAny = (lessons || []).length > 0
 
+  const botUser = (settings.bot_username || '').replace(/^@/, '')
+  const telegramUrl = settings.telegram || (botUser ? `https://t.me/${botUser}` : 'https://t.me/maktab23_bot')
+
   return (
     <>
       <PageHero eyebrow={t.schedulePage.eyebrow} title={t.schedulePage.title} subtitle={t.schedulePage.subtitle} />
@@ -103,6 +110,17 @@ export function SchedulePage() {
 
             {!error && classes !== null && classes.length > 0 && (
               <>
+                {telegramUrl && (
+                  <div className="schedule-cta-wrap">
+                    <a className="schedule-cta-button" href={telegramUrl} target="_blank" rel="noreferrer noopener">
+                      <span className="schedule-cta-icon" aria-hidden="true">
+                        <Send size={24} />
+                      </span>
+                      <span className="schedule-cta-text">Dars jadvalini Telegram bot orqali biling</span>
+                    </a>
+                  </div>
+                )}
+
                 <div className="toolbar glass-panel schedule-toolbar">
                   <label className="class-select-wrap">
                     <span>{t.schedulePage.chooseClassLabel}</span>
@@ -125,7 +143,12 @@ export function SchedulePage() {
                 {hasAny && (
                   <div className="schedule-grid">
                     {[1, 2, 3, 4, 5, 6].map((day) => {
-                      const dayLessons = byDay.get(day) || []
+                      const dayLessons = [...(byDay.get(day) || [])].sort((a, b) => a.lesson_no - b.lesson_no)
+                      const grouped = [1, 2].map((shift) => ({
+                        shift,
+                        lessons: dayLessons.filter((l) => getShiftNumberFromLesson(l) === shift),
+                      }))
+
                       return (
                         <div className={`glass-card schedule-card ${day === today ? 'today' : ''}`} key={day}>
                           <h3>{t.schedulePage.days[day - 1]}</h3>
@@ -139,18 +162,26 @@ export function SchedulePage() {
                                 <span>{t.schedulePage.teacher}</span>
                                 <span>{t.schedulePage.room}</span>
                               </div>
-                              {dayLessons.map((l, idx) => (
-                                <div
-                                  className={`schedule-row ${day === today && l.lesson_no === currentNo ? 'now' : ''} ${day === today && l.lesson_no === nextNo ? 'next' : ''}`}
-                                  key={`${day}-${l.lesson_no}-${idx}`}
-                                >
-                                  <span>
-                                    <b className="lesson-no">{l.lesson_no}</b>
-                                    {l.start && l.end ? `${l.start}–${l.end}` : ''}
-                                  </span>
-                                  <span>{l.subject}</span>
-                                  <span>{l.teacher || '—'}</span>
-                                  <span>{l.room || '—'}</span>
+
+                              {grouped.map(({ shift, lessons: shiftLessons }) => (
+                                <div key={`${day}-shift-${shift}`} className="shift-group-wrap">
+                                  {shiftLessons.length > 0 && (
+                                    <div className="schedule-shift-header">{shift === 1 ? '1-smena' : '2-smena'}</div>
+                                  )}
+                                  {shiftLessons.map((l, idx) => (
+                                    <div
+                                      className={`schedule-row ${day === today && l.lesson_no === currentNo ? 'now' : ''} ${day === today && l.lesson_no === nextNo ? 'next' : ''}`}
+                                      key={`${day}-${shift}-${l.lesson_no}-${idx}`}
+                                    >
+                                      <span>
+                                        <b className="lesson-no">{l.lesson_no}</b>
+                                        {l.start && l.end ? `${l.start}–${l.end}` : ''}
+                                      </span>
+                                      <span>{l.subject}</span>
+                                      <span>{l.teacher || '—'}</span>
+                                      <span>{l.room || '—'}</span>
+                                    </div>
+                                  ))}
                                 </div>
                               ))}
                             </div>

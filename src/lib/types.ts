@@ -15,7 +15,9 @@ export interface PublicNews {
   title: string
   category: string
   content: string
-  image: string
+  image?: string
+  video?: string
+  video_url?: string
   date: string
 }
 
@@ -23,6 +25,8 @@ export interface PublicGalleryItem {
   id: number
   title: string
   image: string
+  video?: string
+  video_url?: string
 }
 
 export interface PublicClass {

@@ -1,6 +1,7 @@
 import { Award, BookOpenCheck, HeartHandshake, Map, ShieldCheck, Sparkles } from 'lucide-react'
 import { PageHero } from '../components/PageHero'
 import { useLanguage } from '../i18n'
+import { useSiteData } from '../lib/siteData'
 
 const values = [
   { icon: Sparkles, titleKey: 'Bilim', descriptionKey: 'Har bir darslar jarayonida mustaqil fikrlash va chuqur bilimni rivojlantiramiz.' },
@@ -11,6 +12,10 @@ const values = [
 
 export function AboutPage() {
   const { t } = useLanguage()
+  const { gallery, loading } = useSiteData()
+  const showcaseCardsData = gallery !== null
+    ? gallery.map((g, i) => ({ number: String(i + 1).padStart(2, '0'), title: g.title, image: g.image }))
+    : (t.showcase?.cards || [])
 
   return (
     <>
@@ -111,6 +116,29 @@ export function AboutPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section id="showcase" className="section gallery-section">
+          <div className="container">
+            <div className="section-label">{t.showcase?.label}</div>
+            <div className="section-heading-row">
+              <h2>
+                {t.showcase?.headingStart} <span>{t.showcase?.headingHighlight}</span>
+              </h2>
+              <p>
+                {t.showcase?.description}
+              </p>
+            </div>
+
+            <div className="editorial-gallery">
+              {showcaseCardsData.map((item, index) => (
+                <article key={`${item.number}-${index}`} className={`gallery-item ${index === 0 ? 'gallery-item-large' : ''}`}>
+                  <img src={item.image} alt={item.title} loading="lazy" />
+                </article>
+              ))}
+            </div>
+            {!loading && showcaseCardsData.length === 0 && <div className="empty-state glass-panel">{t.showcase?.empty}</div>}
           </div>
         </section>
       </main>

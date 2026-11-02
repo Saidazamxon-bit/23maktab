@@ -211,7 +211,6 @@ export function HomePage() {
           {!loading && showcaseCardsData.length === 0 && <div className="empty-state glass-panel">{t.showcase?.empty}</div>}
         </div>
       </section>
-
       <section id="teachers" className="section teachers-section">
         <div className="container">
           <div className="section-label">{t.teachers.label}</div>

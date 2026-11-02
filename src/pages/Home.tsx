@@ -19,11 +19,15 @@ import { useTeachers } from '../lib/useTeachers'
 
 export function HomePage() {
   const { t, language } = useLanguage()
-  const { settings, news, loading } = useSiteData()
+  const { settings, news, gallery, loading } = useSiteData()
   const { list: teacherList } = useTeachers()
 
   const featureList = t.features || []
   const educationCardsData = t.education?.cards || []
+  // Galereya va yangiliklar bazadan; server ishlamasa — zaxira (tarjima fayllaridagi) ma'lumot
+  const showcaseCardsData = gallery !== null
+    ? gallery.map((g, i) => ({ number: String(i + 1).padStart(2, '0'), title: g.title, image: g.image }))
+    : (t.showcase?.cards || [])
   const newsItemsData = news !== null
     ? news.slice(0, 5).map((n) => ({ id: String(n.id), category: n.category, title: n.title, date: formatDate(n.date, language), image: n.image }))
     : (t.news?.list || [])
@@ -185,6 +189,28 @@ export function HomePage() {
         </div>
       </section>
 
+      <section id="showcase" className="section gallery-section">
+        <div className="container">
+          <div className="section-label">{t.showcase?.label}</div>
+          <div className="section-heading-row">
+            <h2>
+              {t.showcase?.headingStart} <span>{t.showcase?.headingHighlight}</span>
+            </h2>
+            <p>
+              {t.showcase?.description}
+            </p>
+          </div>
+
+          <div className="editorial-gallery">
+            {showcaseCardsData.map((item, index) => (
+              <article key={`${item.number}-${index}`} className={`gallery-item ${index === 0 ? 'gallery-item-large' : ''}`}>
+                <img src={item.image} alt={item.title} loading="lazy" />
+              </article>
+            ))}
+          </div>
+          {!loading && showcaseCardsData.length === 0 && <div className="empty-state glass-panel">{t.showcase?.empty}</div>}
+        </div>
+      </section>
       <section id="teachers" className="section teachers-section">
         <div className="container">
           <div className="section-label">{t.teachers.label}</div>
